@@ -484,7 +484,7 @@
       return
       var svgData = $(xmlSvg).find('g[id= "'+ xmlid + '"]').find("path");
       var positionList = [];
-      for (var i = 0 lenSvg = svgData.length; i<lenSvg; i++){
+      for (var i = 0, lenSvg = svgData.length; i<lenSvg; i++){
         var position = svgData[i].getAttribute('d').replace(/[A-Z]/g,'').split(' ')
         for (var j = 0; j<position.length; j++){
           position[j] = position[j] * 1;

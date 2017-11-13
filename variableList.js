@@ -23,7 +23,7 @@ var xmlMeasure2midiBeat =[];
 var mei2midiMapArray =[];
 var xmlMeasureBeat = [];
 
-var sourceDir = "sourceFiles/Chopin Etude op. 10/4";
+var sourceDir = "sourceFiles/Chopin Etude op. 10/4/";
 var fileextension = ".csv";
 var loadedFileNumber = 0;
 
