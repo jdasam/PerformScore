@@ -1,0 +1,882 @@
+<html>
+
+<META http-equiv="Expires" content="-1"> 
+<META http-equiv="Pragma" content="no-cache"> 
+<META http-equiv="Cache-Control" content="No-Cache"> 
+
+
+<head>
+  <title>PerformScore Ver.1.0</title>
+  <script src="verovio-toolkit20170925.js" type="text/javascript" ></script>
+  <!-- We also use jQuery for this example -->
+  <script src="jquery-2.2.4.min.js" type="text/javascript" ></script>
+  <script src="jquery-ui.min.js" type="text/javascript"> </script>
+  <script src="MIDIFile.js" type="text/javascript" ></script>    
+  <script src="papaparse.js" type="text/javascript"></script>
+  <script src="midi2mei.js" type="text/javascript"></script>
+  <script src="variableList.js" type="text/javascript"></script>
+  <script src="audioFileReader.js" type="text/javascript"></script>
+  <script src="jquery.multiselect.min.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="jquery.multiselect.css"></link>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></link>
+<!--   <link rel="stylesheet" href="bootstrap.min.css"></link> -->
+  <link rel="stylesheet" href="jquery-ui.css"></link>
+  <link rel="stylesheet" href="custom-theme.min.css"></link>
+<!--   <script src="bootstrap.min.js"></script> -->
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+  <header>
+    <h1 style="text-align:left;float:left;">PerformScore</h1>
+
+<!--     <h3 style="text-align:right;float:right;">Made by MAC Lab, KAIST</h3>
+ -->   
+ <a target="_blank" href="http://mac.kaist.ac.kr">
+ <img src="logo_mac.png"  style="height:60px;margin-top:10px;margin-right:10px;float:right;" >
+  </a>
+ <a target="_blank" href="http://www.kaist.ac.kr"> <img src="KAIST_logo_tran.gif"  style="height:60px;margin-top:10px;margin-right:10px;float:right;" > </a>
+ <h4 style ="float:right; margin-top:50px">  works in Chrome, Safari, and Opera </h4>
+  </header>
+
+<div id="progressBar">
+  <canvas id="progressCanvas" align="center" </canvas>
+</div>
+
+<div id="wrapper">
+
+  <div id="sidebar">
+
+    <div id="menu" align="center">
+      <button class="btn btn-circle btn-panel-default btn-lg" data-action="play">
+        <i class="glyphicon glyphicon-play"></i>
+      </button>
+      <button class="btn btn-circle btn-panel-default btn-lg" data-action="pause">
+        <i class="glyphicon glyphicon-pause" pointer-events:none></i>
+      </button>
+      <button class="btn btn-circle btn-panel-default btn-lg" data-action="stop">
+        <i class="glyphicon glyphicon-stop"></i>
+      </button>
+    </div>
+
+    <h3> Composer</h3>
+
+    <div class="dropdown">
+      <button class="btn panel-default dropdown-toggle" type="button" data-toggle="dropdown" id = "dropButtonComposer" >Select Composer
+      <span class="caret"></span></button>
+      <ul style="overflow-y:auto; width:200px; height=150px;" class="dropdown-menu" id="composerUl">
+      </ul>
+    </div>
+    <h3> Piece </h3>
+
+    <div class="dropdown" >
+      <button class="btn panel-default dropdown-toggle" type="button" data-toggle="dropdown" id = "dropButtonPiece">Select Piece
+      <span class="caret"  >
+	   </span>
+	  </button>
+      <ul style="overflow-x:auto; overflow-y:scroll; width:200px; height:400px;" class="dropdown-menu " id="pieceUl">
+        <li> Please select a composer </li>
+      </ul>
+    </div>
+
+  	<div id="barNumber">
+  	Measure number
+  	  <input type="number" id="measureNumber"></input>
+  	</div>
+
+
+	
+  	<div id="artist">
+  	  Artist
+      <button class="btn panel-default" id="loadAudio">Load Audio</button>
+  	</div>
+
+    <div >
+    <select id="artistSelect" multiple>
+      </select>
+    </div>
+
+  	<div class="btn-group" id="audioFile-buttons">
+  	</div>
+    <br>
+    <div>
+      <br>
+      <h4 > Contact </h4>
+      <a href="mailto:jdasam@kaist.ac.kr"> <h5> Dasaem Jeong </h5> </a>
+      <h4 > Reference </h4>
+      <a href="https://ismir2017.smcnus.org/lbds/Jeong2017.pdf"> <h5> PerformScore </h5> </a>
+      <a href="https://www.researchgate.net/publication/317687095_Note_Intensity_Estimation_of_Piano_Recordings_by_Score-informed_NMF">  <h5>  Note Intensity Estimation </h5> </a>
+      <a href="https://pdfs.semanticscholar.org/8f34/a5a2ab2584bab58854b11e38d6c0e4ceb073.pdf">  <h5>  Ewert, M&uuml;ller, and Grosche's <br> Audio Synchronization </h5> </a>
+      <a target="_blank" href="https://pdfs.semanticscholar.org/49cc/6d95690166c0928d535056585d1ce9365097.pdf"> <h5> M&uuml;ller et al.'s <br> Smoothing Tempo Curve </h5></a>
+      <a target="_blank" href="http://www.verovio.org/"> <h5> Verovio </h5></a>
+    </div>
+  </div>
+
+  <div id="sub_wrapper">
+
+<!--     <div id="progressBar" style="height:50" >
+      <canvas id="progressCanvas" width="780" height="30" align="center" </canvas>
+	</div> -->
+
+    <div id="output"/>  
+    </div>
+
+  </div>
+  
+
+</div>
+
+
+
+
+
+
+
+
+<style>
+
+  header {
+/*    background-color:#1594E5;
+    color:white;
+    text-align:center;*/
+    background-color: white;
+    text-align:left-center;
+    margin-top:0px;
+    /*margin-left: 0px;*/
+    height:80px;
+    padding:0px;
+
+  }
+
+  h1 {
+    margin-top:0px;
+    padding-left:20px;
+    padding-top:20px;
+  }
+
+  h3 {
+    margin-top:0px;
+    padding-left:20px;
+    padding-top:30px;
+    margin-right:10px;
+  }
+
+
+
+
+  #progressBar{
+    height: 15px;
+    background-color:#F0F0F0;
+    transition: transform 200ms ease-in-out;
+
+  }
+
+
+  #progressBar:hover {
+    /*height: 30px;*/
+    /*background:#29486D;*/
+    /*-webkit-transform: scale(2.5);
+            transform: scale(2.5);*/
+     -webkit-transform: scaleY(2.5);
+     transition: transform 200ms ease-in-out;
+  }
+
+  #wrapper{
+	border: 1px; /* solid #FFBB00;*/
+	width: 100%;
+	padding: 10px;
+	position: absolute;
+    left: 0%;
+	margin-left:10px;
+	top: 100px;
+	overflow: hidden; 
+	}
+
+  #sub_wrapper{
+    float:left;
+    padding:10px;
+	border-radius: 20px;  
+	width: calc(100% - 300px);
+  height: calc(100% - 150px);
+  /*width: 1400px;*/
+	margin-top: 20px; 
+	margin-bottom: 20px;
+	margin-right: 30px;
+	margin-left: 0px;
+    background-color: white;
+	} /* width : 972*/
+
+
+
+  #sidebar {
+    float:right;
+	border-radius: 10px;  
+    width:240px;
+    padding:15px;
+	margin-top: 20px;
+  margin-right: 20px;
+	font-size: 20px;
+    background-color: white;
+    border-style: solid;
+    border-color: #F0F0F0;
+    border-width: 2px;
+  } /* width : 150 */
+
+  #output{
+    float:left;
+  	width: 896px; 
+  } 
+
+  body{
+    /*background-color: #F0F0F0 ;*/
+    background-color: white;
+  }
+
+  #menu{
+    float:center;
+    width: 200px;
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+
+  }
+
+  #artist{
+    font-size: 20px;
+	margin-top: 20px;
+	}
+ /* #progressBar{
+    margin-top: 10px;
+    border-style: double;
+    border-width: 10px;
+    padding-left: 0px;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 800px;
+  }*/
+
+  #audioFile-buttons{
+    float:left;
+    margin-top: 10px;
+    max-width: 1000px;
+  }
+
+  #measureNumber{
+	width: 100;
+  }
+
+  #barNumber{
+    font-size: 20px;
+    float: center;
+	margin-top: 20px;
+	margin-bottom: 10px;
+  }
+
+  #artist{
+    margin-bottom: 10px;
+  }
+
+  .btn-circle.btn-lg {
+    width: 60px;
+    height: 60px;
+    padding: 10px;
+    font-size: 18px;
+    line-height: 1.33;
+    border-radius: 30px;
+  }
+
+  #progressCanvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+    display: block;
+    width: 100%;
+    height: 15px;
+  }
+
+
+</style>  
+
+
+</head>
+<body>
+
+
+
+  <!-- The div where we are going to insert the SVG -->
+  
+
+  <script type="text/javascript">
+    var vrvToolkit = new verovio.toolkit();
+    var page = 1;
+    var zoom = 55;
+    var pageHeight = 1500;
+    var pageWidth = 2100;
+    var spacingSystem = 3;
+    var font = 'Leipzig';
+    var swipe_pages = false;
+    var format = 'mei';
+    var outputFilename = 'output.mei'
+    var ids = [];
+    var pdfFormat = "A4";
+    var pdfOrientation = "portrait";
+
+
+    // var options = JSON.stringify({
+    //     pageHeight: 2500,
+    //     pageWidth: 3900,
+    //     ignoreLayout: 3,
+    //     border: 50,
+    //     scale: 10,
+    // });
+    // var vrvToolkit = new verovio.toolkit();
+    var svg
+    var parser = new DOMParser();
+    var xmlDoc;
+    var xmlSvg;
+    var parseOutput;
+    var xmlid;
+    set_options()
+    var highlightSvg = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+    var playbar = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+    var tempoCurve = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+    // var highlightNoteSvg = document.createElementNS("http://www.w3.org/2000/svg", 'circle')
+
+    //http://www.verovio.org/examples/hello-world/Haydn_StringQuartet_Op1_No1-p1.mei
+    /* Load the file using a HTTP GET */
+
+
+
+    $(window).keyup(function(event){
+      // We need to make sure not to capture event on text fields
+      if ( $(event.target).hasClass('form-control') ) {
+          return;
+      }
+      if ( event.ctrlKey && (event.keyCode == 37) ) {
+          first_page();
+      }
+      else if ( event.keyCode == 37 ) {
+          prev_page();
+      }
+      else if ( event.ctrlKey && (event.keyCode == 39) ) {
+          last_page();
+      }
+      else if ( event.keyCode == 39 ) {
+          next_page();
+      }
+
+      else if (event.keyCode == 32){
+        if(playingOn){
+          pause();
+        }
+        else{
+          playSound(theData[currentFileIndex][0]);
+        }
+      }
+    });
+
+
+
+
+    function parseMeasure(xml, measureNumber)
+    {
+      var $xml = $(xml);
+      xmlid = $xml.find('measure[n="' + measureNumber + '"]')[0].getAttribute("xml:id");
+      return xmlid
+    }
+
+    function detectMeasureInSvg(measures){
+      for(var i = 0; i<measures.length; i++){
+        var positionList = [];
+        var pathArray = measures[i].getElementsByTagName("path");
+        var measureId = measures[i].getAttribute("id");
+
+        for(var j =0; j<pathArray.length; j++){
+          var position = pathArray[j].getAttribute('d').replace(/[A-Z]/g,'').split(' ')
+          for (var k = 0; k<position.length; k++){
+            position[k] = position[k] * 1;
+          }
+          positionList.push(position)                        
+        }
+
+        /*
+        for(var j=1; j<measures[i].childNodes.length; j=j+2){
+          if(measures[i].childNodes[j].getAttribute("class")=="staff"){
+            for(var k=1; k<measures[i].childNodes[j].childNodes.length; k=k+2){
+              console.log(i,j,k)
+              var position = measures[i].childNodes[j].childNodes[k].getAttribute('d').replace(/[A-Z]/g,'').split(' ')
+              for (var l = 0; l<position.length; l++){
+                position[l] = position[l] * 1;
+              }
+              positionList.push(position)                
+            }
+          }
+        }
+        */
+        
+        var minmaxPos = [positionList[0][0],positionList[0][1],0,0]
+
+        for (var l = 0; l<positionList.length; l++){
+          if (positionList[l][0] < minmaxPos[0]) minmaxPos[0] = positionList[l][0];
+          if (positionList[l][1] < minmaxPos[1]) minmaxPos[1] = positionList[l][1];
+          if (positionList[l][2] > minmaxPos[2]) minmaxPos[2] = positionList[l][2];
+          if (positionList[l][3] > minmaxPos[3]) minmaxPos[3] = positionList[l][3];
+        }
+
+        var measureAreaSvg = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+        measureAreaSvg.setAttribute("x", minmaxPos[0].toString());
+        measureAreaSvg.setAttribute('y', minmaxPos[1].toString());
+        measureAreaSvg.setAttribute('width', (minmaxPos[2] - minmaxPos[0]).toString());
+        measureAreaSvg.setAttribute('height', (minmaxPos[3] - minmaxPos[1]).toString());
+        //measureAreaSvg.style.stroke = 'red';
+        measureAreaSvg.style.strokeWidth = 0;
+        measureAreaSvg.style.fillOpacity = 0;
+        measureAreaSvg.id = measureId;
+
+        measureAreaSvg.addEventListener("click", measureClick);
+
+
+        $(output)[0].childNodes[0].childNodes[7].childNodes[1].appendChild(measureAreaSvg)
+      }
+    }
+
+
+    $(measureNumber).change(function() {
+      xmlid = parseMeasure(xmlDoc, $(measureNumber).val());
+      page = vrvToolkit.getPageWithElement(xmlid);
+
+      load_page();
+      move2Measure($(measureNumber).val(), theData[currentFileIndex][1], theData[0][1]);
+      // highlightingMeasure(xmlid);
+
+    });
+
+    $(artistSelect).change(function() {
+
+       $(loadAudio).removeClass("btn panel-default").addClass("btn btn-darkblue");
+
+    });
+
+
+    $('progressBar').hover(function(){
+      $('progressBar').css('height', '150px')
+    })
+
+
+    $('progressBar').hover(
+      function() { console.log('hello') },
+    );
+    //$(output)[0].addEventListener("mouseover", mouseOver);
+
+
+    function mouseOver() {
+        console.log("mouse over");
+    }
+
+    function measureClick(){
+      var selectedMeasure = $(xmlDoc).find('measure[xml\\:id="'+this.id+'"]')[0].getAttribute('n');
+      $(measureNumber).val(selectedMeasure);
+      move2Measure(selectedMeasure, theData[currentFileIndex][1], theData[0][1]);
+      // highlightingMeasure(this.id);
+    }
+
+    function highlightingMeasure(xmlid){
+      return
+      var svgData = $(xmlSvg).find('g[id= "'+ xmlid + '"]').find("path");
+      var positionList = [];
+      for (var i = 0 lenSvg = svgData.length; i<lenSvg; i++){
+        var position = svgData[i].getAttribute('d').replace(/[A-Z]/g,'').split(' ')
+        for (var j = 0; j<position.length; j++){
+          position[j] = position[j] * 1;
+        }
+        positionList.push(position)
+
+      }
+
+      var minmaxPos = [positionList[0][0],positionList[0][1],0,0]
+
+      for (var i = 0; i<positionList.length; i++){
+        if (positionList[i][0] < minmaxPos[0]) minmaxPos[0] = positionList[i][0];
+        if (positionList[i][1] < minmaxPos[1]) minmaxPos[1] = positionList[i][1];
+        if (positionList[i][2] > minmaxPos[2]) minmaxPos[2] = positionList[i][2];
+        if (positionList[i][3] > minmaxPos[3]) minmaxPos[3] = positionList[i][3];
+      }
+
+      highlightSvg.setAttribute("x", minmaxPos[0].toString());
+      highlightSvg.setAttribute('y', minmaxPos[1].toString());
+      highlightSvg.setAttribute('width', (minmaxPos[2] - minmaxPos[0]).toString());
+      highlightSvg.setAttribute('height', (minmaxPos[3] - minmaxPos[1]).toString());
+      highlightSvg.style.stroke = 'red';
+      highlightSvg.style.strokeWidth = 5;
+      highlightSvg.style.fillOpacity = 0.1;
+
+
+      //$(output)[0].appendChild(highlightSvg)
+      $(output)[0].childNodes[0].childNodes[7].childNodes[1].appendChild(highlightSvg)
+
+      //$(output)[0].insertBefore(highlightSvg, $(output)[0].childNodes[0].childNodes[3].childNodes[1].childNodes[1])
+    }    
+
+    function highlightingNote(xmlid){
+      // var svgData = $(xmlSvg).find('g[id= "'+ xmlid + '"]')[0];
+      var svgData = document.getElementById(xmlid);
+
+      if (svgData) {
+        svgData.style.fill = 'red';
+        // console.log(xmlid)
+      }
+    }
+
+    function showPlaybar(currentSecond, csvAudio, csvBeat, midiNotes, meiNotes, svg){
+      var beat = time2beat(currentSecond, csvAudio, csvBeat); //midibeat
+      var midiMeasure = measureBeat.binaryIndexOf(beat); //midimeasure
+      beat = beat - (measureBeat[midiMeasure] - midiMeasure2xmlBeat[midiMeasure]);
+
+
+      var posList = beat2position(beat, meiNotes, svg);
+
+      if(typeof(posList) =="undefined") return
+
+      var x1 = posList[0];
+      var x2 = x1
+      var y1 = String(Number(posList[1]) - 200);
+      var y2 = String(Number(posList[2]) + 200);
+
+
+      playbar.setAttribute("x1", x1 )
+      playbar.setAttribute("y1", y1 ) 
+      playbar.setAttribute("x2", x2 )
+      playbar.setAttribute("y2", y2 ) 
+      playbar.style.stroke = 'red';
+      playbar.style.strokeWidth = 50;
+      playbar.style.fillOpacity = 1;
+
+      $(output)[0].childNodes[0].childNodes[7].childNodes[1].appendChild(playbar)
+    }
+
+
+
+
+    function applyVelocity2svg(svg, midiArray, meiArray){
+      var s = new XMLSerializer();
+      // var notesInSvg = $(svg).find("g[class=note]")
+      var notesInSvg = document.getElementsByClassName("note");
+      for (var i=0; i<notesInSvg.length; i++){
+        var xmlid = notesInSvg[i].getAttribute('id');
+        if (mei2midiMapArray.length > 1) {
+        // var meiNote = meiArray.filter(function (note) { return note.xmlid == xmlid })[0];
+        // var velocity = findMeiIDorVelocity(midiArray, meiNote);
+          var meiNoteIndex = meiArray.findIndex(function(e){return e.xmlid==xmlid});
+          if (typeof(mei2midiMapArray[meiNoteIndex]) != "undefined"){
+            if (typeof(theData[currentFileIndex]) != "undefined"){
+              var velocity = theData[currentFileIndex][2][mei2midiMapArray[meiNoteIndex]];
+            }
+            else var velocity = midiArray[mei2midiMapArray[meiNoteIndex]].velocity;
+          }
+        }
+
+        var note = document.getElementById(xmlid);
+        // note.style.opacity = Math.max(Math.pow(Number(velocity),3)/Math.pow(127,3), 0.2);
+        note.style.opacity = Math.max(Number(velocity)/127, 0.2);
+
+        // $(svg).find('g[id= "'+ xmlid + '"]').css({'opacity': Number(velocity/128)})
+      }
+      // var stringSvg = s.serializeToString(svg);
+      // $("#output").html(stringSvg);
+
+      // var measures = $(svg).find("g[class=measure]")
+      var measures = document.getElementsByClassName("measure")
+
+      detectMeasureInSvg(measures)
+
+    }
+
+    function drawTempoCurve(svg, midiArray, meiArray, csvBeat) {
+
+
+      if (typeof(theData[currentFileIndex]) == "undefined") return
+      var csvAudio = theData[currentFileIndex][1];
+      // var notesInSvg = $(svg).find("g[class=note]");
+      var notesInSvg = document.getElementsByClassName("note");
+      var beatInPage =[];
+      var positionInPage =[];
+
+      for (var i=0; i<notesInSvg.length; i++){
+        var xmlid = notesInSvg[i].getAttribute('id');
+        if (mei2midiMapArray.length > 1) {
+        // var meiNote = meiArray.filter(function (note) { return note.xmlid == xmlid })[0];
+        // var velocity = findMeiIDorVelocity(midiArray, meiNote);
+          var meiNoteIndex = meiArray.findIndex(function(e){return e.xmlid==xmlid});
+          if (typeof(mei2midiMapArray[meiNoteIndex]) != "undefined"){
+            // var beat = meiArray[meiNoteIndex].beatIndex; //xmlbeat
+            // var midiMeasure = midiMeasure2xmlBeat.binaryIndexOf(beat) // 
+            // var midiBeat = beat + (measureBeat[midiMeasure] - midiMeasure2xmlBeat[midiMeasure]);
+
+            beatInPage.push(  meiArray[meiNoteIndex].beatIndex);
+            // beatInPage.push(midiBeat);
+          }
+
+        }
+      }
+      var dups = [];
+      beatInPage = beatInPage.filter(function(el) {
+        // If it is not a duplicate, return true
+        if (dups.indexOf(el) == -1) {
+          dups.push(el);
+          return true;
+        }
+        return false;        
+      });
+
+      beatInPage = beatInPage.sort(function(a,b){return a-b} );
+      // console.log(beatInPage);
+
+
+      for (var i=0, len = beatInPage.length; i<len; i++){
+        positionInPage.push(beat2position(beatInPage[i], meiArray, svg) );
+      }
+
+
+
+      // console.log(positionInPage)
+      var pathCum = "M" + positionInPage[0][0]  + " " +  positionInPage[0][2];
+      for (var i=0, len = positionInPage.length; i<len; i++){
+
+        // if (i ==0) tempoCurve.setAttribute("d", "M" + positionInPage[i][0]  + " " +  positionInPage[i][2])
+
+        // var pathBefore = tempoCurve.getAttribute("d")
+        var localTempo = beat2tempo(beatInPage[i], csvAudio, csvBeat, midiOnsetBeatList, 3);
+        var localY =  String (Math.floor( Number(positionInPage[i][2]) - Math.min(localTempo,5) * 500));
+
+        // if the beat is in same line (system)
+        if (i != 0 && positionInPage[i-1][1] == positionInPage[i][1]){
+          pathCum = pathCum + " L" + positionInPage[i][0] + " " + localY 
+        }
+        else {
+          pathCum = pathCum + " M" + positionInPage[i][0] + " " + localY   
+        }
+      }
+
+      tempoCurve.setAttribute("d", pathCum);
+      tempoCurve.style.stroke = 'blue';
+      tempoCurve.style.strokeWidth = 60;
+      tempoCurve.style.strokeOpacity = 0.7;
+      tempoCurve.style.fillOpacity = 0;
+
+      $(output)[0].childNodes[0].childNodes[7].childNodes[1].appendChild(tempoCurve);
+
+      // strip the ms
+
+
+    }
+
+
+    function next_page() {
+      if (page >= vrvToolkit.getPageCount()) {
+          return;
+      }
+
+      page = page + 1;
+      load_page();
+    };
+
+    function prev_page() {
+      if (page <= 1) {
+          return;
+      }
+
+      page = page - 1;
+      load_page();
+    };
+
+    function load_page() {
+        svg = vrvToolkit.renderPage(page, "");
+        $("#output").html(svg);
+
+        xmlSvg = $.parseXML(svg);
+
+        applyVelocity2svg(xmlSvg, midiNotesList, meiNotesList);
+        drawTempoCurve(xmlSvg, midiNotesList, meiNotesList, theData[0][1]);
+
+        // var measures = $(xmlSvg).find("g[class=measure]")
+
+        // detectMeasureInSvg(measures)
+
+        // xmlSvg = svg;
+
+    };
+
+
+
+
+   // function enable_swipe( pages ) {
+   //      if ( pages && !swipe_pages ) {
+   //          $("#svg_output").swipe( "destroy" );
+   //          $("#svg_output").swipe( { swipeLeft: swipe_next, swipeRight: swipe_prev, tap: swipe_zoom_in, doubleTap: swipe_zoom_out, allowPageScroll:"auto"} );
+   //          swipe_pages = true;
+   //      }
+   //      // zoom only
+   //      else if ( !pages && swipe_pages ) {
+   //          $("#svg_output").swipe( "destroy" );
+   //          $("#svg_output").swipe( { tap: swipe_zoom_in, doubleTap: swipe_zoom_out, allowPageScroll:"auto"} );
+   //          swipe_pages = false;
+   //      }
+   //  }
+
+    function set_options( ) {
+      var pageHeight = calc_page_height(); //- $('#sidebar').width();
+      var pageWidth = calc_page_width();
+      var border = 20;
+      options = {
+                  inputFormat: format,
+                  pageHeight: pageHeight,
+                  pageWidth: pageWidth,
+                  border: border,
+                  scale: zoom,
+                  spacingSystem: spacingSystem,
+                  adjustPageHeight: 1,
+                  ignoreLayout: 1,
+                  mmOutput: 0,
+                  font: font
+              };
+      //console.log( options );
+      vrvToolkit.setOptions( options );
+    }
+
+    function calc_page_height() {
+        return ($(window).height() - $("header").height() - $("#progressBar").height() - 30) * 100 / zoom;
+        // return ($(sub_wrapper).height() )  * 100 / zoom ; // - $( "#sidbar" ).width();
+    }
+
+    function calc_page_width() {
+        return ($(sub_wrapper).width() )  * 100 / zoom ; // - $( "#sidbar" ).width();
+    }
+
+
+
+
+    function Menu(elem) {
+      elem.onclick = function(e) {
+        var target = e && e.target || event.srcElement;
+        if(target.getAttribute('data-action')==null){
+          var action = target.getAttribute('class').split('-')[1];
+        } else var action = target.getAttribute('data-action');
+        if (action=="play" && playingOn == false) {
+          if (loadCompleted) playSound(theData[currentFileIndex][0]);
+          else alert("There are no selected or loaded Artists. Please select & load Artists, and wait for loading to complete.");
+        }
+        else if(action=="pause") {
+          pause();
+        }
+        else if(action=="stop") {
+          stop();
+        }
+      }
+    }
+    new Menu(document.getElementById('menu'))
+
+
+    function selectAudio(elem) {
+      elem.onclick = function(e) {
+        var target = e && e.target || event.srcElement
+        var id = target.getAttribute('id');
+
+        if (id == 'loading') return
+        if (id == "audioFile-buttons") return
+        var index = selectedAudioList.indexOf(id);
+
+        $("[id='"+id+"']").removeClass("btn btn-default").addClass("btn btn-darkblue");
+        //$('#'+unescape(id)).removeClass("btn btn-default").addClass("btn btn-primary");
+
+        for(var i=0, len=selectedAudioList.length; i<len; i++){
+          if (i!=index) $("[id='"+selectedAudioList[i]+"']").removeClass("btn btn-darkblue").addClass("btn btn-default");
+        }
+
+        if(playingOn) switchAudio(index+1);
+        // else playSound(theData[index+1][0]);
+        currentFileIndex = index + 1;
+        applyVelocity2svg(xmlSvg, midiNotesList, meiNotesList);
+        drawTempoCurve(xmlSvg, midiNotesList, meiNotesList, theData[0][1]);
+      }
+    }
+    new selectAudio(document.getElementById('audioFile-buttons'));
+
+
+
+    function loadSelectedAudio(elem) {
+      elem.onclick = function(e){
+        if(!selectedAudioList) selectedAudioList =[];
+
+        selectedAudioPrev = selectedAudioList.slice(0);
+        selectedAudioList = $("#artistSelect").val();
+        var tempData = [];
+        if (arraysEqual(selectedAudioPrev, selectedAudioList)) return;
+
+        if(playingOn) stop();
+        loadCompleted = false;
+        loadedFileNumber = 0;
+
+        var button= '<button class="btn btn-default" id="loading" > Loading Audio Files.. </button>'
+        $("#audioFile-buttons").append(button);
+
+        for(var i =0, len=selectedAudioPrev.length; i<len; i++){
+          var newIndex = selectedAudioList.indexOf(selectedAudioPrev[i]);
+          if (newIndex != -1){
+            tempData[newIndex+1] = theData[i+1];
+            loadedFileNumber++;
+          } else theData[i+1] =[];
+        }
+
+        for(var i =1, len=tempData.length; i<len; i++){
+          theData[i] = tempData[i];
+        }
+
+        for(var i =0, len=selectedAudioList.length; i<len; i++){
+          var oldIndex = selectedAudioPrev.indexOf(selectedAudioList[i]);
+          if (oldIndex == -1){
+            theData[i+1] = [ [],[] ];
+            getAudio(sourceDir, i+1, selectedAudioList[i])
+          }
+        }
+
+        if(theData.length > selectedAudioList.length +1 ){
+          var dif = theData.length - 1 - selectedAudioList.length;
+          theData.splice(selectedAudioList.length+1, dif);
+        }
+
+        if(loadedFileNumber == selectedAudioList.length){
+          loadCompleted = true;
+          makeArtistButton(selectedAudioList, "#audioFile-buttons");
+          $(loadAudio).removeClass("btn btn-darkblue").addClass("btn panel-default");
+        }
+
+        //getAudioByList(selectedAudioList, sourceDir);
+      }
+    }
+
+    new loadSelectedAudio(document.getElementById('loadAudio'));
+
+
+    $(window).resize(function() {
+      if(this.resizeTO) clearTimeout(this.resizeTO);
+      this.resizeTO = setTimeout(function() {
+          $(this).trigger('resizeEnd');
+      }, 300);
+    });
+
+    $(window).bind('resizeEnd', function() {
+      set_options()
+      vrvToolkit.redoLayout();
+      load_page()
+      // console.log('resizeEnd!')
+    });
+
+
+
+
+
+
+
+  </script>
+</body>
+</html>
